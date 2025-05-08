@@ -10,6 +10,7 @@ namespace wind.api.Controllers
         [HttpGet("bull")]
         public IActionResult Index()
         {
+            string name = "zaigham";
             return Ok();
         }
     }
