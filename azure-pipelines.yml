@@ -21,7 +21,7 @@ steps:
     inputs:
       restoreSolution: '**/*.sln'
 
-  - script: dotnet build $(sourceDir)/wind.sln --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory) 
+  - script: dotnet build --configuration $(buildConfiguration)
     displayName: 'Build project'
 
   # Ensure the build output exists before publishing
