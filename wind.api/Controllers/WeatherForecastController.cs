@@ -8,7 +8,7 @@ namespace wind.api.Controllers
     {
         private static readonly string[] Summaries = new[]
         {
-            "Freezing i am good","ana de armas","sydney", "Bracing heavy", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching","hot"
+            "Freezing i am good","ana de armas","sydney", "Bracing heavy", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching","hot ty"
 
         };
 
