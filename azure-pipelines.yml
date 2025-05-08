@@ -1,24 +1,29 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
 trigger:
-  - production
+  - production  # This triggers the pipeline on changes to the 'production' branch
 
 pool:
-  name: self-hosted-agent-01
+  name: self-hosted-agent-01  # Replace this with the name of your self-hosted agent pool
 
 variables:
-  buildConfiguration: 'Release'  # Consistent use of single quotes
+  buildConfiguration: 'Release'  # Build configuration can be 'Release' or 'Debug'
 
 steps:
   - task: UseDotNet@2
     inputs:
       packageType: 'sdk'
-      version: '9.0.x'
+      version: '9.0.x'  # Specify the .NET SDK version you're using
       installationPath: $(Agent.ToolsDirectory)/dotnet
 
-  - task: NuGetToolInstaller@1
+  - task: NuGetToolInstaller@1  # This will install the NuGet tool
 
-  - task: NuGetCommand@2
+  - task: NuGetCommand@2  # Restoring the NuGet packages for the solution
     inputs:
       restoreSolution: '**/*.sln'
 
-  - script: dotnet build --configuration $(buildConfiguration)
+  - script: dotnet build --configuration $(buildConfiguration)  # Building the project with the specified configuration
     displayName: 'Build project'
