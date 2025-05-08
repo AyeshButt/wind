@@ -1,16 +1,12 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
   - production
 
 pool:
-  name: self-hosted-agent-01
+  name: 'self-hosted-agent-01'  # Self-hosted agent pool name
 
 variables:
   buildConfiguration: 'Release'
+  sourceDir: '$(Build.SourcesDirectory)/1/source'  # Path to your source code
 
 steps:
   - task: UseDotNet@2
@@ -25,6 +21,16 @@ steps:
     inputs:
       restoreSolution: '**/*.sln'
 
-  - script: dotnet build --configuration $(buildConfiguration)
+  - script: dotnet build $(sourceDir)/YourProject.sln --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
     displayName: 'Build project'
 
+  # Ensure the build output exists before publishing
+  - script: |
+      echo "Listing files in build output directory"
+      dir $(Build.ArtifactStagingDirectory)
+    displayName: 'Check Artifact Directory'
+
+  # Publish the build output as an artifact
+  - publish: $(Build.ArtifactStagingDirectory)
+    artifact: 'drop'
+    displayName: 'Publish Build Artifact'
