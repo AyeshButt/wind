@@ -9,6 +9,7 @@ namespace wind.api.Controllers
         private static readonly string[] Summaries = new[]
         {
             "Freezing i am good","ana de armas","sydney", "Bracing heavy", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
