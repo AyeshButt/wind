@@ -2,11 +2,10 @@ trigger:
   - production
 
 pool:
-  name: 'self-hosted-agent-01'  # Self-hosted agent pool name
+  name: self-hosted-agent-01  # Change this to your self-hosted agent pool name if it's different
 
 variables:
   buildConfiguration: 'Release'
-  sourceDir: '$(Build.SourcesDirectory)/1/source'  # Path to your source code
 
 steps:
   - task: UseDotNet@2
@@ -19,18 +18,19 @@ steps:
 
   - task: NuGetCommand@2
     inputs:
-      restoreSolution: '**/*.sln'
+      restoreSolution: 'wind.sln'
 
-  - script: dotnet build $(sourceDir)/YourProject.sln --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
-    displayName: 'Build project'
+  - script: dotnet build wind.sln --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
+    displayName: 'Build Project'
 
-  # Ensure the build output exists before publishing
-  - script: |
-      echo "Listing files in build output directory"
-      dir $(Build.ArtifactStagingDirectory)
-    displayName: 'Check Artifact Directory'
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '$(Build.ArtifactStagingDirectory)'
+      Contents: '**'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/output'
 
-  # Publish the build output as an artifact
-  - publish: $(Build.ArtifactStagingDirectory)
-    artifact: 'drop'
-    displayName: 'Publish Build Artifact'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/output'
+      ArtifactName: 'drop'
+      publishLocation: 'Container'
