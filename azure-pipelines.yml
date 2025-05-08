@@ -1,29 +1,36 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-  - production  # This triggers the pipeline on changes to the 'production' branch
+  - production
 
 pool:
-  name: self-hosted-agent-01  # Replace this with the name of your self-hosted agent pool
+  name: self-hosted-agent-01  # Change this to your self-hosted agent pool name if it's different
 
 variables:
-  buildConfiguration: 'Release'  # Build configuration can be 'Release' or 'Debug'
+  buildConfiguration: 'Release'
 
 steps:
   - task: UseDotNet@2
     inputs:
       packageType: 'sdk'
-      version: '9.0.x'  # Specify the .NET SDK version you're using
+      version: '9.0.x'
       installationPath: $(Agent.ToolsDirectory)/dotnet
 
-  - task: NuGetToolInstaller@1  # This will install the NuGet tool
+  - task: NuGetToolInstaller@1
 
-  - task: NuGetCommand@2  # Restoring the NuGet packages for the solution
+  - task: NuGetCommand@2
     inputs:
-      restoreSolution: '**/*.sln'
+      restoreSolution: 'wind.sln'
 
-  - script: dotnet build --configuration $(buildConfiguration)  # Building the project with the specified configuration
-    displayName: 'Build project'
+  - script: dotnet build wind.sln --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
+    displayName: 'Build Project'
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '$(Build.ArtifactStagingDirectory)'
+      Contents: '**'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/output'
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/output'
+      ArtifactName: 'drop'
+      publishLocation: 'Container'
