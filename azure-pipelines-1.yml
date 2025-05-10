@@ -1,0 +1,36 @@
+trigger:
+  branches:
+    include:
+      - production
+
+pr: none
+
+pool:
+  name: self-hosted-agent-01  # or your self-hosted agent name
+  
+variables:
+  buildConfiguration: 'Release'
+jobs:
+ - job: Build_Admin
+   condition: contains(variables['Build.SourceVersionMessage'],'[wind-api-proj]')
+   steps:
+   - task: UseDotNet@2
+     inputs:
+      packageType: 'sdk'
+      version: '9.0.x'
+      installationPath: $(Agent.ToolsDirectory)/dotnet
+
+   - script: dotnet restore wind.api/wind.api.csproj
+     displayName: 'Restore wind api project'
+
+   - script: dotnet build wind.api/wind.api.csproj --configuration $(buildConfiguration)
+     displayName: 'Build wind api project'
+
+   - script: dotnet publish wind.api/wind.api.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/api
+     displayName: 'Publish wind api project'
+
+   - task: PublishBuildArtifacts@1
+     inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/api'
+      ArtifactName: 'wind-api-artifact'
+      publishLocation: 'Container'
