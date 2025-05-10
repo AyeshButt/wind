@@ -1,36 +1,72 @@
+# trigger:
+#   - production
+
+# pool:
+#   name: self-hosted-agent-01  # Change this to your self-hosted agent pool name if it's different
+
+# variables:
+#   buildConfiguration: 'Release'
+
+# steps:
+#   - task: UseDotNet@2
+#     inputs:
+#       packageType: 'sdk'
+#       version: '9.0.x'
+#       installationPath: $(Agent.ToolsDirectory)/dotnet
+
+#   - task: NuGetToolInstaller@1
+
+#   - task: NuGetCommand@2
+#     inputs:
+#       restoreSolution: 'wind.sln'
+
+#   - script: dotnet build wind.sln --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
+#     displayName: 'Build Project'
+
+#   - task: CopyFiles@2
+#     inputs:
+#       SourceFolder: '$(Build.ArtifactStagingDirectory)'
+#       Contents: '**'
+#       TargetFolder: '$(Build.ArtifactStagingDirectory)/output'
+
+#   - task: PublishBuildArtifacts@1
+#     inputs:
+#       PathtoPublish: '$(Build.ArtifactStagingDirectory)/output'
+#       ArtifactName: 'drop'
+#       publishLocation: 'Container'
 trigger:
-  - production
+  branches:
+    include:
+      - production
+
+pr: none
 
 pool:
-  name: self-hosted-agent-01  # Change this to your self-hosted agent pool name if it's different
-
+  name: self-hosted-agent-01  # or your self-hosted agent name
+  
 variables:
   buildConfiguration: 'Release'
-
-steps:
-  - task: UseDotNet@2
-    inputs:
+jobs:
+ - job: Build_Admin
+   condition: contains(variables['Build.SourceVersionMessage'],'[wind-web-proj]')
+   steps:
+   - task: UseDotNet@2
+     inputs:
       packageType: 'sdk'
       version: '9.0.x'
       installationPath: $(Agent.ToolsDirectory)/dotnet
 
-  - task: NuGetToolInstaller@1
+   - script: dotnet restore eSim.web/wind.web.csproj
+     displayName: 'Restore wind web project'
 
-  - task: NuGetCommand@2
-    inputs:
-      restoreSolution: 'wind.sln'
+   - script: dotnet build wind.web/wind.web.csproj --configuration $(buildConfiguration)
+     displayName: 'Build wind web project'
 
-  - script: dotnet build wind.sln --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
-    displayName: 'Build Project'
+   - script: dotnet publish wind.web/wind.web.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/web
+     displayName: 'Publish wind web project'
 
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: '$(Build.ArtifactStagingDirectory)'
-      Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)/output'
-
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/output'
-      ArtifactName: 'drop'
+   - task: PublishBuildArtifacts@1
+     inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/web'
+      ArtifactName: 'wind-web-artifact'
       publishLocation: 'Container'
