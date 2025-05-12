@@ -11,7 +11,7 @@ namespace wind.api.Controllers
         public IActionResult Index()
         {
             string name = "zaigham";
-            return Ok();
+            return Ok(name);
         }
     }
 }
